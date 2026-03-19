@@ -19,9 +19,13 @@ const servicesByCategory: Record<string, string[]> = {
   Other: ["Consultation", "Installation", "Maintenance", "Repair", "Other Services"],
 };
 
+const categoryColors: Record<string, string> = {
+  Plumbing: "blue", Electrical: "amber", "General Contracting": "orange",
+  HVAC: "teal", Painting: "purple", Landscaping: "green", Other: "blue",
+};
+
 interface FormData {
   businessName: string;
-  kvk: string;
   category: string;
   district: string;
   phone: string;
@@ -34,17 +38,9 @@ interface FormData {
 }
 
 const empty: FormData = {
-  businessName: "",
-  kvk: "",
-  category: "",
-  district: "",
-  phone: "",
-  email: "",
-  website: "",
-  photoUrl: "",
-  description: "",
-  services: [],
-  agree: false,
+  businessName: "", category: "", district: "",
+  phone: "", email: "", website: "", photoUrl: "",
+  description: "", services: [], agree: false,
 };
 
 const stepLabels = ["Business Info", "Contact Details", "Services & Submit"];
@@ -66,13 +62,41 @@ export default function JoinPage() {
   }
 
   function canProceed(): boolean {
-    if (step === 0) return !!(form.businessName && form.kvk && form.category && form.district);
+    if (step === 0) return !!(form.businessName && form.category && form.district);
     if (step === 1) return !!(form.phone && form.email && form.description);
     if (step === 2) return form.services.length > 0 && form.agree;
     return false;
   }
 
   function handleSubmit() {
+    // Build initials from business name
+    const initials = form.businessName
+      .split(" ").filter(Boolean).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+
+    const newEntry = {
+      id: `local-${Date.now()}`,
+      name: form.businessName,
+      category: form.category,
+      district: form.district,
+      phone: form.phone,
+      email: form.email,
+      website: form.website,
+      imageUrl: form.photoUrl,
+      description: form.description,
+      services: form.services,
+      rating: null,
+      reviewCount: 0,
+      status: "pending",
+      featured: false,
+      joinedDate: new Date().toISOString().split("T")[0],
+      initials,
+      categoryColor: categoryColors[form.category] ?? "blue",
+    };
+
+    const existing = JSON.parse(localStorage.getItem("arubaProApplications") || "[]");
+    existing.push(newEntry);
+    localStorage.setItem("arubaProApplications", JSON.stringify(existing));
+
     setSubmitted(true);
   }
 
@@ -89,10 +113,10 @@ export default function JoinPage() {
             </div>
             <h2 className="text-2xl font-bold text-navy-900 mb-3">Application Submitted!</h2>
             <p className="text-slate-500 text-sm leading-relaxed mb-2">
-              Thank you, <strong>{form.businessName}</strong>. Your listing application is under review.
+              Thank you, <strong>{form.businessName}</strong>. Your listing is now pending review.
             </p>
             <p className="text-slate-400 text-sm">
-              Our admin team will verify your KVK number and contact you at <strong>{form.email}</strong> within 1–2 business days.
+              Check the Admin Dashboard to approve your listing. We will contact you at <strong>{form.email}</strong>.
             </p>
           </div>
         </main>
@@ -104,13 +128,11 @@ export default function JoinPage() {
   return (
     <>
       <Navbar />
-
       <main className="flex-1 pt-16 bg-slate-50">
-        {/* Header */}
         <div className="bg-navy-900 py-12">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">List Your Business</h1>
-            <p className="text-navy-200">Join hundreds of professionals on ArubaPro Connect. Free forever.</p>
+            <p className="text-navy-200">Join professionals on ArubaPro Connect. Free forever.</p>
           </div>
         </div>
 
@@ -119,31 +141,19 @@ export default function JoinPage() {
           <div className="flex items-center justify-between mb-10">
             {stepLabels.map((label, i) => (
               <div key={label} className="flex-1 flex flex-col items-center relative">
-                {/* Connector */}
                 {i > 0 && (
-                  <div
-                    className={`absolute left-0 top-4 w-full h-0.5 -translate-x-1/2 ${i <= step ? "bg-brand-500" : "bg-slate-200"}`}
-                  />
+                  <div className={`absolute left-0 top-4 w-full h-0.5 -translate-x-1/2 ${i <= step ? "bg-brand-500" : "bg-slate-200"}`} />
                 )}
-                <div
-                  className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mb-2 transition-colors ${
-                    i < step
-                      ? "bg-brand-500 text-white"
-                      : i === step
-                      ? "bg-navy-900 text-white ring-4 ring-navy-900/10"
-                      : "bg-slate-200 text-slate-400"
-                  }`}
-                >
+                <div className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mb-2 transition-colors ${
+                  i < step ? "bg-brand-500 text-white" : i === step ? "bg-navy-900 text-white ring-4 ring-navy-900/10" : "bg-slate-200 text-slate-400"
+                }`}>
                   {i < step ? <CheckCircle className="w-4 h-4" /> : i + 1}
                 </div>
-                <span className={`text-xs font-medium text-center ${i === step ? "text-navy-900" : "text-slate-400"}`}>
-                  {label}
-                </span>
+                <span className={`text-xs font-medium text-center ${i === step ? "text-navy-900" : "text-slate-400"}`}>{label}</span>
               </div>
             ))}
           </div>
 
-          {/* Form card */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 sm:p-8">
             {/* Step 0: Business Info */}
             {step === 0 && (
@@ -156,42 +166,19 @@ export default function JoinPage() {
                 </div>
 
                 <Field label="Business Name *">
-                  <input
-                    type="text"
-                    value={form.businessName}
-                    onChange={(e) => update("businessName", e.target.value)}
-                    placeholder="e.g. Caribbean Plumbing Solutions"
-                    className={inputClass}
-                  />
-                </Field>
-
-                <Field label="KVK Number *" hint="Your Chamber of Commerce registration number">
-                  <input
-                    type="text"
-                    value={form.kvk}
-                    onChange={(e) => update("kvk", e.target.value)}
-                    placeholder="e.g. 2024-10423"
-                    className={inputClass}
-                  />
+                  <input type="text" value={form.businessName} onChange={(e) => update("businessName", e.target.value)}
+                    placeholder="e.g. Caribbean Plumbing Solutions" className={inputClass} />
                 </Field>
 
                 <Field label="Service Category *">
-                  <select
-                    value={form.category}
-                    onChange={(e) => { update("category", e.target.value); update("services", []); }}
-                    className={inputClass}
-                  >
+                  <select value={form.category} onChange={(e) => { update("category", e.target.value); update("services", []); }} className={inputClass}>
                     <option value="">Select a category…</option>
                     {categories.map((c) => <option key={c}>{c}</option>)}
                   </select>
                 </Field>
 
                 <Field label="District *">
-                  <select
-                    value={form.district}
-                    onChange={(e) => update("district", e.target.value)}
-                    className={inputClass}
-                  >
+                  <select value={form.district} onChange={(e) => update("district", e.target.value)} className={inputClass}>
                     <option value="">Select your district…</option>
                     {districts.map((d) => <option key={d}>{d}</option>)}
                   </select>
@@ -210,69 +197,42 @@ export default function JoinPage() {
                 </div>
 
                 <Field label="Phone Number *">
-                  <input
-                    type="tel"
-                    value={form.phone}
-                    onChange={(e) => update("phone", e.target.value)}
-                    placeholder="+297 594-0000"
-                    className={inputClass}
-                  />
+                  <input type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)}
+                    placeholder="+297 594-0000" className={inputClass} />
                 </Field>
 
                 <Field label="Email Address *">
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={(e) => update("email", e.target.value)}
-                    placeholder="you@yourbusiness.aw"
-                    className={inputClass}
-                  />
+                  <input type="email" value={form.email} onChange={(e) => update("email", e.target.value)}
+                    placeholder="you@yourbusiness.aw" className={inputClass} />
                 </Field>
 
                 <Field label="Website" hint="Optional">
-                  <input
-                    type="url"
-                    value={form.website}
-                    onChange={(e) => update("website", e.target.value)}
-                    placeholder="https://yourbusiness.aw"
-                    className={inputClass}
-                  />
+                  <input type="url" value={form.website} onChange={(e) => update("website", e.target.value)}
+                    placeholder="https://yourbusiness.aw" className={inputClass} />
                 </Field>
 
-                <Field label="Business Photo URL" hint="Optional — link to a photo showing your work">
+                <Field label="Business Photo" hint="Optional — paste a link to a photo of your work">
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-2 flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
-                        <ImageIcon className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                        <input
-                          type="url"
-                          value={form.photoUrl}
-                          onChange={(e) => update("photoUrl", e.target.value)}
-                          placeholder="https://example.com/your-work-photo.jpg"
-                          className="flex-1 text-sm text-slate-800 placeholder-slate-400 outline-none bg-transparent"
-                        />
-                      </div>
+                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                      <ImageIcon className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                      <input type="url" value={form.photoUrl} onChange={(e) => update("photoUrl", e.target.value)}
+                        placeholder="https://example.com/photo.jpg"
+                        className="flex-1 text-sm text-slate-800 placeholder-slate-400 outline-none bg-transparent" />
                     </div>
                     {form.photoUrl && (
-                      <div className="relative h-36 rounded-xl overflow-hidden border border-slate-200">
+                      <div className="h-36 rounded-xl overflow-hidden border border-slate-200">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={form.photoUrl} alt="Preview" className="w-full h-full object-cover" />
                       </div>
                     )}
-                    <p className="text-xs text-slate-400">
-                      Tip: upload your photo to Google Drive, Dropbox, or Imgur and paste the direct link here.
-                    </p>
+                    <p className="text-xs text-slate-400">Tip: upload to Imgur or Google Drive and paste the link.</p>
                   </div>
                 </Field>
 
-                <Field label="Business Description *" hint="Describe your services in 1–3 sentences">
-                  <textarea
-                    value={form.description}
-                    onChange={(e) => update("description", e.target.value)}
-                    placeholder="We provide professional plumbing services across Aruba, specializing in…"
-                    rows={4}
-                    className={`${inputClass} resize-none`}
-                  />
+                <Field label="Business Description *" hint="1–3 sentences about your services">
+                  <textarea value={form.description} onChange={(e) => update("description", e.target.value)}
+                    placeholder="We provide professional services across Aruba, specializing in…"
+                    rows={4} className={`${inputClass} resize-none`} />
                 </Field>
               </div>
             )}
@@ -293,16 +253,10 @@ export default function JoinPage() {
                   {availableServices.map((s) => {
                     const checked = form.services.includes(s);
                     return (
-                      <button
-                        key={s}
-                        type="button"
-                        onClick={() => toggleService(s)}
+                      <button key={s} type="button" onClick={() => toggleService(s)}
                         className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium text-left transition-colors ${
-                          checked
-                            ? "bg-navy-900 border-navy-900 text-white"
-                            : "bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300"
-                        }`}
-                      >
+                          checked ? "bg-navy-900 border-navy-900 text-white" : "bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300"
+                        }`}>
                         <span className={`w-4 h-4 rounded flex-shrink-0 border-2 flex items-center justify-center ${checked ? "bg-brand-500 border-brand-500" : "border-slate-300"}`}>
                           {checked && (
                             <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 10 10" fill="none">
@@ -322,7 +276,6 @@ export default function JoinPage() {
                   <Row label="Business" value={form.businessName} />
                   <Row label="Category" value={form.category} />
                   <Row label="District" value={form.district} />
-                  <Row label="KVK" value={form.kvk} />
                   <Row label="Phone" value={form.phone} />
                   <Row label="Email" value={form.email} />
                   {form.photoUrl && (
@@ -335,15 +288,10 @@ export default function JoinPage() {
                 </div>
 
                 <label className="flex items-start gap-3 cursor-pointer mt-4">
-                  <input
-                    type="checkbox"
-                    checked={form.agree}
-                    onChange={(e) => update("agree", e.target.checked)}
-                    className="mt-0.5 w-4 h-4 accent-brand-500"
-                  />
+                  <input type="checkbox" checked={form.agree} onChange={(e) => update("agree", e.target.checked)}
+                    className="mt-0.5 w-4 h-4 accent-brand-500" />
                   <span className="text-sm text-slate-600 leading-relaxed">
-                    I confirm that the information provided is accurate and that my business is a legitimate
-                    KVK-registered entity operating in Aruba.
+                    I confirm that the information provided is accurate and that this is a real business operating in Aruba.
                   </span>
                 </label>
               </div>
@@ -351,31 +299,18 @@ export default function JoinPage() {
 
             {/* Navigation */}
             <div className="flex items-center justify-between mt-8 pt-6 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setStep((s) => s - 1)}
-                disabled={step === 0}
-                className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-navy-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
+              <button type="button" onClick={() => setStep((s) => s - 1)} disabled={step === 0}
+                className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-navy-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
                 <ChevronLeft className="w-4 h-4" /> Back
               </button>
-
               {step < 2 ? (
-                <button
-                  type="button"
-                  onClick={() => setStep((s) => s + 1)}
-                  disabled={!canProceed()}
-                  className="flex items-center gap-1.5 px-6 py-2.5 text-sm font-semibold bg-navy-900 hover:bg-navy-800 text-white rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                >
+                <button type="button" onClick={() => setStep((s) => s + 1)} disabled={!canProceed()}
+                  className="flex items-center gap-1.5 px-6 py-2.5 text-sm font-semibold bg-navy-900 hover:bg-navy-800 text-white rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                   Continue <ChevronRight className="w-4 h-4" />
                 </button>
               ) : (
-                <button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={!canProceed()}
-                  className="flex items-center gap-1.5 px-6 py-2.5 text-sm font-semibold bg-brand-500 hover:bg-brand-600 text-white rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                >
+                <button type="button" onClick={handleSubmit} disabled={!canProceed()}
+                  className="flex items-center gap-1.5 px-6 py-2.5 text-sm font-semibold bg-brand-500 hover:bg-brand-600 text-white rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                   Submit Application <ChevronRight className="w-4 h-4" />
                 </button>
               )}
@@ -383,7 +318,6 @@ export default function JoinPage() {
           </div>
         </div>
       </main>
-
       <Footer />
     </>
   );
@@ -410,5 +344,4 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-const inputClass =
-  "w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition-colors";
+const inputClass = "w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition-colors";
