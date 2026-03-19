@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle, ChevronRight, ChevronLeft, Building2, Phone, Wrench } from "lucide-react";
+import { CheckCircle, ChevronRight, ChevronLeft, Building2, Phone, Wrench, ImageIcon } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -27,6 +27,7 @@ interface FormData {
   phone: string;
   email: string;
   website: string;
+  photoUrl: string;
   description: string;
   services: string[];
   agree: boolean;
@@ -40,6 +41,7 @@ const empty: FormData = {
   phone: "",
   email: "",
   website: "",
+  photoUrl: "",
   description: "",
   services: [],
   agree: false,
@@ -237,6 +239,32 @@ export default function JoinPage() {
                   />
                 </Field>
 
+                <Field label="Business Photo URL" hint="Optional — link to a photo showing your work">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                        <ImageIcon className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <input
+                          type="url"
+                          value={form.photoUrl}
+                          onChange={(e) => update("photoUrl", e.target.value)}
+                          placeholder="https://example.com/your-work-photo.jpg"
+                          className="flex-1 text-sm text-slate-800 placeholder-slate-400 outline-none bg-transparent"
+                        />
+                      </div>
+                    </div>
+                    {form.photoUrl && (
+                      <div className="relative h-36 rounded-xl overflow-hidden border border-slate-200">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={form.photoUrl} alt="Preview" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <p className="text-xs text-slate-400">
+                      Tip: upload your photo to Google Drive, Dropbox, or Imgur and paste the direct link here.
+                    </p>
+                  </div>
+                </Field>
+
                 <Field label="Business Description *" hint="Describe your services in 1–3 sentences">
                   <textarea
                     value={form.description}
@@ -297,6 +325,13 @@ export default function JoinPage() {
                   <Row label="KVK" value={form.kvk} />
                   <Row label="Phone" value={form.phone} />
                   <Row label="Email" value={form.email} />
+                  {form.photoUrl && (
+                    <div className="mt-2">
+                      <p className="text-slate-400 text-xs mb-1">Photo preview</p>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={form.photoUrl} alt="Business photo" className="h-24 w-full object-cover rounded-lg" />
+                    </div>
+                  )}
                 </div>
 
                 <label className="flex items-start gap-3 cursor-pointer mt-4">

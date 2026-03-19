@@ -16,7 +16,8 @@
       "featured": true,
       "joinedDate": "2024-01-15",
       "initials": "CP",
-      "categoryColor": "blue"
+      "categoryColor": "blue",
+      "imageUrl": "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=800&q=80"
     },
     {
       "id": "2",
@@ -34,7 +35,8 @@
       "featured": true,
       "joinedDate": "2023-11-08",
       "initials": "AE",
-      "categoryColor": "amber"
+      "categoryColor": "amber",
+      "imageUrl": "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=800&q=80"
     },
     {
       "id": "3",
@@ -52,7 +54,8 @@
       "featured": true,
       "joinedDate": "2023-09-20",
       "initials": "IB",
-      "categoryColor": "orange"
+      "categoryColor": "orange",
+      "imageUrl": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80"
     },
     {
       "id": "4",
@@ -70,7 +73,8 @@
       "featured": false,
       "joinedDate": "2024-02-01",
       "initials": "TH",
-      "categoryColor": "teal"
+      "categoryColor": "teal",
+      "imageUrl": "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&q=80"
     },
     {
       "id": "5",
@@ -88,7 +92,8 @@
       "featured": false,
       "joinedDate": "2024-03-10",
       "initials": "SP",
-      "categoryColor": "purple"
+      "categoryColor": "purple",
+      "imageUrl": "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=800&q=80"
     },
     {
       "id": "6",
@@ -106,7 +111,8 @@
       "featured": false,
       "joinedDate": "2023-12-05",
       "initials": "PG",
-      "categoryColor": "green"
+      "categoryColor": "green",
+      "imageUrl": "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&q=80"
     },
     {
       "id": "7",
@@ -124,7 +130,8 @@
       "featured": false,
       "joinedDate": "2025-01-08",
       "initials": "PE",
-      "categoryColor": "amber"
+      "categoryColor": "amber",
+      "imageUrl": ""
     },
     {
       "id": "8",
@@ -142,7 +149,8 @@
       "featured": false,
       "joinedDate": "2025-01-14",
       "initials": "QF",
-      "categoryColor": "blue"
+      "categoryColor": "blue",
+      "imageUrl": ""
     },
     {
       "id": "9",
@@ -160,7 +168,8 @@
       "featured": false,
       "joinedDate": "2025-01-19",
       "initials": "AH",
-      "categoryColor": "orange"
+      "categoryColor": "orange",
+      "imageUrl": ""
     },
     {
       "id": "10",
@@ -178,7 +187,8 @@
       "featured": false,
       "joinedDate": "2025-01-22",
       "initials": "CB",
-      "categoryColor": "teal"
+      "categoryColor": "teal",
+      "imageUrl": ""
     }
   ]
 }
